@@ -125,6 +125,10 @@ istp <- readxl::read_xlsx("~/Downloads/ISTP_place_list.xlsx")
 istp$ISTP <- "ISTP"
 ia_places <- ia_places %>% left_join(istp %>% select(FIPS_PL, ISTP) %>% mutate(FIPS_PL=as.numeric(FIPS_PL)), by=c("geoid"="FIPS_PL"))
 
+ia_places$ISTP <- ia_places$ISTP=="ISTP"
+ia_places <- ia_places %>% mutate(
+  ISTP = ifelse(is.na(ISTP), FALSE, TRUE)
+)
 usethis::use_data(ia_places, overwrite = TRUE)
 
 

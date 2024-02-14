@@ -120,6 +120,11 @@ filter(pop00, geoid %in% ids$geoid)
 ia_places$name[ia_places$geoid==1945750] <- "Littleport"
 ia_places$name[ia_places$geoid==1952410] <- "Millville"
 
+# from Cybox: https://iastate.app.box.com/folder/138625368211
+istp <- readxl::read_xlsx("~/Downloads/ISTP_place_list.xlsx")
+istp$ISTP <- "ISTP"
+ia_places <- ia_places %>% left_join(istp %>% select(FIPS_PL, ISTP) %>% mutate(FIPS_PL=as.numeric(FIPS_PL)), by=c("geoid"="FIPS_PL"))
+
 usethis::use_data(ia_places, overwrite = TRUE)
 
 

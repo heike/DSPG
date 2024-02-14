@@ -15,6 +15,7 @@ A tibble with 1030 rows and 7 columns
   \item{pop2000}{numeric, 2000 Census Variable PL001001}
   \item{county}{character, name of the surrounding county}
   \item{county_geoid}{five-digit identifier of the county (FIPS code)}
+  \item{ISTP}{logical is the place part of the Iowa small town survey (ISTP)?}
 }
 }
 \source{

@@ -34,6 +34,26 @@ usethis::use_data(ia_cities, overwrite = TRUE)
 library(tidycensus)
 
 # need to have key for CENSUS_API set
+ia_counties_2020 <- get_decennial(
+  geography = "county",
+  variables = c("P1_001N"),
+  state="IA",
+  year = 2020,
+  geometry =T
+)
+ia_counties_2020  <- st_transform(ia_counties_2020, '+proj=longlat  +datum=WGS84 +units=m +ellps=WGS84')
+names(ia_counties_2020) <- tolower(names(ia_counties_2020))
+ia_counties_2020 <- ia_counties_2020 %>% mutate(census2020pop = value)
+# merge old and new county information
+ia_counties <- ia_counties %>% as_tibble() %>% select(-geometry)
+
+ia_counties_2020 <- ia_counties_2020 %>% left_join(ia_counties, by=c("geoid"="fips"))
+ia_counties_2020 <- ia_counties_2020 %>% select(-name, -variable, -value)
+
+ia_counties <- ia_counties_2020
+ia_counties <- ia_counties %>% select(co_number, co_fips, acres_sf, acres, geoid, county, state, id, census2010pop,census2020pop, popestimate2019, geometry)
+usethis::use_data(ia_counties, overwrite = TRUE)
+
 ia_places <- get_decennial(
   geography = "place",
   variables = c("P1_001N"),

@@ -9,7 +9,7 @@ A tibble with 1030 rows and 7 columns
 \describe{
   \item{geoid}{character}
   \item{name}{character}
-  \item{geometry}{sfc_MULTIPOLYGON}
+  \item{geometry}{sfc_MULTIPOLYGON, based on the PL 94-171 Redistricting Data Summary File}
   \item{pop2020}{numeric, 2020 Census Variable P1_001N}
   \item{pop2010}{numeric, 2010 Census Variable P001001}
   \item{pop2000}{numeric, 2000 Census Variable PL001001}

@@ -9,6 +9,7 @@
 #'   \item{acres_sf}{square footage in acres}
 #'   \item{acres}{county acreage, same as `ACRES_SF``}
 #'   \item{geoid}{five-digit fips code}
+#'   \item{name}{name of geographic entity (County)}
 #'   \item{county}{county name (and it's `Obrien`)}
 #'   \item{state}{two letter state abbreviation (`IA` all the way through)}
 #'   \item{id}{identifier same as `CO_FIPS`}

@@ -47,11 +47,11 @@ ia_counties_2020 <- ia_counties_2020 %>% mutate(census2020pop = value)
 # merge old and new county information
 ia_counties <- ia_counties %>% as_tibble() %>% select(-geometry)
 
-ia_counties_2020 <- ia_counties_2020 %>% left_join(ia_counties, by=c("geoid"="fips"))
-ia_counties_2020 <- ia_counties_2020 %>% select(-name, -variable, -value)
+ia_counties_2020 <- ia_counties_2020 %>% left_join(ia_counties)
+ia_counties_2020 <- ia_counties_2020 %>% select(-variable)
 
 ia_counties <- ia_counties_2020
-ia_counties <- ia_counties %>% select(co_number, co_fips, acres_sf, acres, geoid, county, state, id, census2010pop,census2020pop, popestimate2019, geometry)
+ia_counties <- ia_counties %>% select(co_number, co_fips, acres_sf, acres, geoid, name, county, state, id, census2010pop,census2020pop, popestimate2019, geometry)
 usethis::use_data(ia_counties, overwrite = TRUE)
 
 ia_places <- get_decennial(

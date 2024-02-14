@@ -67,6 +67,10 @@ names(ia_places) <- tolower(names(ia_places))
 ia_places <- ia_places %>% mutate(
   name = gsub(" city, Iowa", "", name)
 )
+
+ia_places <- ia_places %>% mutate(
+  name = gsub(", Iowa", "", name)
+)
 ia_places <- ia_places %>% mutate(
   geoid = as.numeric(geoid),
   pop20 = value
@@ -104,6 +108,8 @@ ia_places <- ia_places %>%
   full_join(pop10 %>% select(-name), by="geoid") %>%
   full_join(pop00 %>% select(-name), by="geoid")
 
+ia_places <- ia_places %>% left_join(ia_cities %>% as_tibble() %>% select(cityFIPS_1, county, countyFI_1), by=c("geoid"="cityFIPS_1"))
+#ia_places %>% anti_join(ia_cities %>% as_tibble() %>% select(cityFIPS_1, county, countyFI_1), by=c("geoid"="cityFIPS_1"))
 
 names(ia_places)[4:6] <- c("pop2020", "pop2010", "pop2000")
 

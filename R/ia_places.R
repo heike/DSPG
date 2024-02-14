@@ -7,12 +7,14 @@
 #' population numbers.
 #' @format A tibble with 1030 rows and 7 columns
 #' \describe{
-#'   \item{geoid}{character}
-#'   \item{name}{character}
+#'   \item{geoid}{seven-digit identifier of the geographic entity}
+#'   \item{name}{character, name of the city. Census designated places show their name with an extension of CDP.  }
 #'   \item{geometry}{sfc_MULTIPOLYGON, based on the PL 94-171 Redistricting Data Summary File}
 #'   \item{pop2020}{numeric, 2020 Census Variable P1_001N}
 #'   \item{pop2010}{numeric, 2010 Census Variable P001001}
 #'   \item{pop2000}{numeric, 2000 Census Variable PL001001}
+#'   \item{county}{character, name of the surrounding county}
+#'   \item{county_geoid}{five-digit identifier of the county (FIPS code)}
 #' }
 #' @source US Census Bureau Decennial Census 2020, 2010, 2000
 #' @examples

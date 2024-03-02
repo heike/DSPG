@@ -17,6 +17,7 @@ A data frame with 99 rows and 9 variables:
   \item{state}{two letter state abbreviation (`IA` all the way through)}
   \item{id}{identifier same as `CO_FIPS`}
   \item{census2010pop}{US Census Bureau count of 2010 county population.}
+  \item{census2020pop}{US Census Bureau count of 2020 county population.}
   \item{popestimate2019}{US Census Bureau estimate of 2019 county population.}
   \item{geometry}{simple feature object of polygons}
 }

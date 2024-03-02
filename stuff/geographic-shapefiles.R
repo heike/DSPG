@@ -155,9 +155,9 @@ ia_places <- ia_places %>% mutate(
   })
 )
 ia_places <- ia_places %>% mutate(
-  county_geoid = data %>% purrr::map_chr(.f = function(d) {
+  county_geoid = data %>% purrr::map_dbl(.f = function(d) {
     if (is.null(d)) return(NA)
-    if (nrow(d) == 1) return(d$county)
+    if (nrow(d) == 1) return(d$countyFI_1)
     d$countyFI_1[d$countyPr=="x"]
   })
 )

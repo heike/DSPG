@@ -9,13 +9,15 @@ A tibble with 1030 rows and 7 columns
 \describe{
   \item{geoid}{seven-digit identifier of the geographic entity}
   \item{name}{character, name of the city. Census designated places show their name with an extension of CDP.  }
-  \item{geometry}{sfc_MULTIPOLYGON, based on the PL 94-171 Redistricting Data Summary File}
+  \item{county}{character, name of the (principal) surrounding county}
+  \item{county_geoid}{five-digit identifier of the county (FIPS code)}
+  \item{county_other}{character, name(s) of the other counties the town/cdp is in.}
+  \item{type}{character, classification as "town" or "cdp" (census designated place).}
+  \item{ISTP}{logical, is this town part of the Iowa Small Town poll?}
   \item{pop2020}{numeric, 2020 Census Variable P1_001N}
   \item{pop2010}{numeric, 2010 Census Variable P001001}
   \item{pop2000}{numeric, 2000 Census Variable PL001001}
-  \item{county}{character, name of the surrounding county}
-  \item{county_geoid}{five-digit identifier of the county (FIPS code)}
-  \item{ISTP}{logical is the place part of the Iowa small town survey (ISTP)?}
+  \item{geometry}{sfc_MULTIPOLYGON, based on the PL 94-171 Redistricting Data Summary File}
 }
 }
 \source{
@@ -35,13 +37,11 @@ population numbers.
 # three geometries on top of each other
 library(leaflet)
 library(sf)
-ia_cities \%>\%
+ia_places \%>\%
   leaflet() \%>\%
   addTiles() \%>\%
   addPolygons(data = ia_counties,
              weight = 1, color="#333333") \%>\%
-  addPolygons(data = ia_places, weight = 1, color="maroon") \%>\%
-  addCircleMarkers(radius = 0,
-                   label = ~city)
+  addPolygons(data = ia_places, weight = 1, color="maroon", label=~name)
 }
 \keyword{datasets}

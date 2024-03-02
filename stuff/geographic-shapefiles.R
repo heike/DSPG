@@ -105,10 +105,15 @@ pop00 <- pop00 %>% mutate(
 
 
 ia_places <- ia_places %>%
-  full_join(pop10 %>% select(-name), by="geoid") %>%
+  full_join(pop10 %>% select(-name), by="geoid")
+
+ia_places <- ia_places %>%
   full_join(pop00 %>% select(-name), by="geoid")
 
-ia_places <- ia_places %>% left_join(ia_cities %>% as_tibble() %>% select(cityFIPS_1, county, countyFI_1), by=c("geoid"="cityFIPS_1"))
+# need a better source for the county information
+cities_with_multiple_counties <- ia_cities %>% st_drop_geometry() %>% group_by(cityFIPS_1) %>% mutate( n = n()) %>% arrange(desc(n))
+ia_cities_nest <- ia_cities %>% st_drop_geometry() %>% select(cityFIPS_1, county, countyFI_1, countyPr) %>% group_by(cityFIPS_1) %>% tidyr::nest()
+ia_places <- ia_places %>% left_join(ia_cities_nest, by=c("geoid"="cityFIPS_1"))
 #ia_places %>% anti_join(ia_cities %>% as_tibble() %>% select(cityFIPS_1, county, countyFI_1), by=c("geoid"="cityFIPS_1"))
 
 names(ia_places)[4:6] <- c("pop2020", "pop2010", "pop2000")
@@ -129,6 +134,103 @@ ia_places$ISTP <- ia_places$ISTP=="ISTP"
 ia_places <- ia_places %>% mutate(
   ISTP = ifelse(is.na(ISTP), FALSE, TRUE)
 )
+# Nora Springs is in two counties, it represents Floyd County
+ia_places %>% filter(geoid=="1956910")
+#ia_places <- ia_places %>% mutate(
+#  ISTP = ifelse(name=="Nora Springs", county=="Floyd", ISTP)
+#)
+
+# Nashua is in two counties, it represents Floyd County
+ia_places %>% filter(geoid=="1956910")
+#ia_places <- ia_places %>% mutate(
+#  ISTP = ifelse(name=="Nora Springs", county=="Floyd", ISTP)
+#)
+
+
+ia_places <- ia_places %>% mutate(
+  county = data %>% purrr::map_chr(.f = function(d) {
+    if (is.null(d)) return(NA)
+    if (nrow(d) == 1) return(d$county)
+    d$county[d$countyPr=="x"]
+  })
+)
+ia_places <- ia_places %>% mutate(
+  county_geoid = data %>% purrr::map_chr(.f = function(d) {
+    if (is.null(d)) return(NA)
+    if (nrow(d) == 1) return(d$county)
+    d$countyFI_1[d$countyPr=="x"]
+  })
+)
+
+# # none of the CDPs have counties
+filter(ia_places, is.na(county))
+# # Kingston is in Des Moines County
+
+# From USGS:
+# https://prd-tnm.s3.amazonaws.com/index.html?prefix=StagedProducts/GeographicNames/DomesticNames/
+zipfile <- "https://prd-tnm.s3.amazonaws.com/StagedProducts/GeographicNames/DomesticNames/DomesticNames_IA_Text.zip"
+img <- "https://prd-tnm.s3.amazonaws.com/StagedProducts/GeographicNames/DomesticNames/DomesticNames_IA_Text.jpg"
+meta <- "https://prd-tnm.s3.amazonaws.com/StagedProducts/GeographicNames/DomesticNames/DomesticNames_IA_Text.xml"
+
+download.file(url=meta, destfile="raw/USGS/places-meta.xml")
+download.file(url=img, destfile="raw/USGS/places-image.jpg")
+download.file(url=zipfile, destfile="raw/USGS/places-ia.zip")
+
+names_ia <- read.delim("raw/USGS/places-ia/Text/DomesticNames_IA.txt", sep="|")
+
+names_ia %>% filter(feature_class=="Census") %>% dim()
+
+cdps <- grep(" CDP", ia_places$name)
+ia_places$type <- "Town"
+ia_places$type[cdps] <- "CDP"
+
+ia_places <- ia_places %>% mutate(
+  name = gsub(" CDP", " Census Designated Place", name)
+)
+
+
+cdps <- ia_places %>% filter(type=="CDP")
+
+# the only problematic places are the St.
+cdps %>% anti_join(names_ia %>% st_drop_geometry() %>% filter(feature_class=="Census"), by=c("name"= "feature_name")) %>% View()
+grep("Benedict Census Designated Place", names_ia$feature_name, value = TRUE)
+
+cdps <- cdps %>% mutate(
+  name = gsub("St. ", "Saint ", name)
+)
+cdps %>% anti_join(names_ia %>% st_drop_geometry() %>% filter(feature_class=="Census"), by=c("name"= "feature_name")) %>% View()
+# got them all, so now join
+
+cdps <- cdps %>% left_join(
+  names_ia %>% st_drop_geometry() %>% filter(feature_class=="Census") %>%
+    select(feature_name, county_name, county_numeric),
+  by=c("name"= "feature_name"))
+
+# now let's join that back into ia_places
+ia_places <- ia_places %>% left_join(cdps %>% st_drop_geometry() %>% select(geoid, county_name, county_numeric))
+
+ia_places <- ia_places %>% mutate(
+  county = ifelse(is.na(county), county_name, county),
+  county_geoid = ifelse(is.na(county_geoid), county_numeric, county_geoid)
+)
+
+ia_places <- ia_places %>% mutate(
+  county_other = data %>% purrr::map_chr(.f = function(d) {
+    if (is.null(d)) return("")
+    if (nrow(d) == 1) return("")
+#    if (nrow(d) > 2) browser()
+    paste(d$county[d$countyPr!="x"], collapse=", ")
+  })
+)
+
+ia_places <- ia_places %>% mutate(
+  name = gsub("Census Designated Place", "CDP",  name)
+)
+
+ia_places <- ia_places %>%
+  select(geoid, name, county, county_geoid, county_other,
+         type, ISTP,
+         pop2020, pop2010, pop2000,
+         geometry)
+
 usethis::use_data(ia_places, overwrite = TRUE)
-
-

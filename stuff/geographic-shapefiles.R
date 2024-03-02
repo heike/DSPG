@@ -105,10 +105,10 @@ pop00 <- pop00 %>% mutate(
 
 
 ia_places <- ia_places %>%
-  full_join(pop10 %>% select(-name), by="geoid")
+  left_join(pop10 %>% select(-name), by="geoid")
 
 ia_places <- ia_places %>%
-  full_join(pop00 %>% select(-name), by="geoid")
+  left_join(pop00 %>% select(-name), by="geoid")
 
 # need a better source for the county information
 cities_with_multiple_counties <- ia_cities %>% st_drop_geometry() %>% group_by(cityFIPS_1) %>% mutate( n = n()) %>% arrange(desc(n))

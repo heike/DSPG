@@ -36,12 +36,16 @@ population numbers.
 \examples{
 # three geometries on top of each other
 library(leaflet)
+library(leaflet.extras)
 library(sf)
-ia_places \%>\%
   leaflet() \%>\%
   addTiles() \%>\%
   addPolygons(data = ia_counties,
              weight = 1, color="#333333") \%>\%
-  addPolygons(data = ia_places, weight = 1, color="maroon", label=~name)
+  addPolygons(data = ia_places, weight = 1, color="maroon", label=~name, group="places") \%>\%
+  addSearchFeatures(targetGroups = "places",
+                    options = searchFeaturesOptions(
+                      zoom = 10, openPopup = TRUE,
+                      hideMarkerOnCollapse = TRUE))
 }
 \keyword{datasets}

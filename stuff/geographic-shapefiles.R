@@ -32,6 +32,7 @@ usethis::use_data(ia_cities, overwrite = TRUE)
 
 ##############
 library(tidycensus)
+options(tigris_use_cache = TRUE)
 
 # need to have key for CENSUS_API set
 ia_counties_2020 <- get_decennial(
@@ -234,3 +235,39 @@ ia_places <- ia_places %>%
          geometry)
 
 usethis::use_data(ia_places, overwrite = TRUE)
+
+###########
+
+
+ia_tracts_2020 <- get_decennial(
+  state = "IA",
+  geography = "tract",
+  table="P1",
+#  variables = "P1_001N",
+  geometry = TRUE,
+  keep_geo_vars = TRUE, # easier to work with
+  year = 2020,
+  output = "wide"
+)
+v20 <- load_variables(2020, "pl", cache = TRUE)
+
+ia_tracts <- ia_tracts_2020 %>% select(GEOID, TRACT_ID = NAME.x, County_FIPS = COUNTYFP, County = NAMELSADCO, geometry, starts_with("P1_"))
+ia_tracts <- ia_tracts %>% st_transform(crs=st_crs("WGS84"))
+
+# roxify(ia_tracts, v20)
+usethis::use_data(ia_tracts, overwrite = TRUE)
+ia_tracts %>%
+  ggplot() +
+  geom_sf(aes(fill = P1_001N))
+
+#
+ia_tracts_2020 %>%
+  ggplot() +
+  geom_sf(aes(fill = value))
+
+  #' ia_counties %>%
+  #'
+  #'   ,
+  #'           colour = "grey80", size = 0.1) +
+  #'   ggthemes::theme_map()
+
